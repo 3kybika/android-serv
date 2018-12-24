@@ -19,7 +19,22 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -E UTF8 -T template0 -O docker docker 
+    createdb -E UTF8 -T template0 -O docker docker &&\
+    /etc/init.d/postgresql stop
+
+    
+# Adjust PostgreSQL configuration so that remote connections to the
+# database are possible.
+RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGVER/main/pg_hba.conf
+
+RUN echo "listen_addresses='*'" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "synchronous_commit = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "fsync = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
+
+RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "pg_stat_statements.max = 10000" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "pg_stat_statements.track = all" >> /etc/postgresql/$PGVER/main/postgresql.conf
+
 
 # Expose the PostgreSQL port
 EXPOSE 5432
@@ -33,7 +48,7 @@ USER root
 ##
  # Сборка проекта
  #
-
+CMD service postgresql start
  # Установка JDK
 
 RUN apt-get update
@@ -56,4 +71,4 @@ EXPOSE 8081
 #
 # Запускаем PostgreSQL и сервер
 #
-CMD service postgresql start && java -jar $WORK/serv/target/demo-0.0.1-SNAPSHOT.jar
+CMD  java -jar $WORK/serv/target/demo-0.0.1-SNAPSHOT.jar
