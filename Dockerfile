@@ -19,8 +19,7 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -E UTF8 -T template0 -O docker docker &&\
-    /etc/init.d/postgresql
+    createdb -E UTF8 -T template0 -O docker docker 
 
 # Expose the PostgreSQL port
 EXPOSE 5432
