@@ -8,3 +8,4 @@ services:
     ports:
       - 80:8081
       - 5432:5432
+    command: "./start.sh"
