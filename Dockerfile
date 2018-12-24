@@ -21,4 +21,4 @@ EXPOSE 8081
 #
 # Запускаем  сервер
 #
-CMD java -jar $WORK/serv/target/demo-0.0.1-SNAPSHOT.jar
+CMD java -jar $WORK/serv/target/server-0.0.1-SNAPSHOT.jar
