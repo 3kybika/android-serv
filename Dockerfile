@@ -19,7 +19,7 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    psql --command "CRETE DATABASE docker;" &&\
+    psql --command "CREATE DATABASE docker;" &&\
 	psql --command "GRANT ALL PRIVILEGES ON DATABASE docker TO docker;"
  
 RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGVER/main/pg_hba.conf
