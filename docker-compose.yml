@@ -1,11 +1,19 @@
-version: '3'
+version: '3.3'
 services:
-  test_server:
+  postgres:
+    image: "postgres"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: docker
+      POSTGRES_USER: docker
+      POSTGRES_DB: docker
+  web:
     build:
       context: https://github.com/3kybika/android-serv.git
     restart: unless-stopped
-    container_name: test_server
+    container_name: web
     ports:
-      - 80:8081
-      - 5432:5432
-    command: "./start.sh"
+      - 8081:8081
+    links:
+      - postgres
+   
