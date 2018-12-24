@@ -2,7 +2,7 @@ version: '3'
 services:
   test_server:
     build:
-      context: https://github.com/3kybika/android-serv.git#:backend_servers
+      context: https://github.com/3kybika/android-serv.git
     restart: unless-stopped
     container_name: test_server
     ports:
