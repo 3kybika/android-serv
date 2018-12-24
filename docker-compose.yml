@@ -1,4 +1,5 @@
 version: '3.3'
+
 services:
   postgres:
     image: postgres
@@ -7,8 +8,8 @@ services:
       POSTGRES_PASSWORD: docker
       POSTGRES_USER: docker
       POSTGRES_DB: docker
-    ports:
-    - 5432:5432
+    volumes:
+      - ./postgres_folder:/var/lib/postgresql
   web:
     build:
       context: https://github.com/3kybika/android-serv.git
@@ -16,6 +17,5 @@ services:
     container_name: web
     ports:
       - 8081:8081
-    links:
+    depends_on:
       - postgres
-   
