@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  postgres:
+  android_postgres:
     image: postgres
     restart: always
     environment:
@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: docker
     volumes:
       - ./postgres_folder:/var/lib/postgresql
-  web:
+  android_web:
     build:
       context: https://github.com/3kybika/android-serv.git
     restart: unless-stopped
