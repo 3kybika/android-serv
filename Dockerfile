@@ -20,21 +20,7 @@ USER postgres
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -E UTF8 -T template0 -O docker docker &&\
-    /etc/init.d/postgresql stop
-
-
-# Adjust PostgreSQL configuration so that remote connections to the
-# database are possible.
-RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGVER/main/pg_hba.conf
-
-RUN echo "listen_addresses='*'" >> /etc/postgresql/$PGVER/main/postgresql.conf
-RUN echo "synchronous_commit = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
-RUN echo "fsync = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
-
-RUN echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/$PGVER/main/postgresql.conf
-RUN echo "pg_stat_statements.max = 10000" >> /etc/postgresql/$PGVER/main/postgresql.conf
-RUN echo "pg_stat_statements.track = all" >> /etc/postgresql/$PGVER/main/postgresql.conf
-
+    /etc/init.d/postgresql
 
 # Expose the PostgreSQL port
 EXPOSE 5432
@@ -62,8 +48,8 @@ ADD serv/ $WORK/serv/
 
 # Собираем и устанавливаем пакет
 WORKDIR $WORK/serv
-# RUN mvn package
 
+RUN mvn package
 
 # Объявлем порт сервера
 EXPOSE 8081
