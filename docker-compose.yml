@@ -3,7 +3,7 @@ version: '3.3'
 services:
   android_postgres:
     image: postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: docker
       POSTGRES_USER: docker
@@ -14,7 +14,6 @@ services:
     build:
       context: https://github.com/3kybika/android-serv.git
     restart: unless-stopped
-    container_name: web
     ports:
       - 8081:8081
     depends_on:
