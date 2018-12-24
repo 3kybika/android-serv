@@ -64,7 +64,6 @@ ADD serv/ $WORK/serv/
 WORKDIR $WORK/serv
 # RUN mvn package
 
-RUN mvn package
 
 # Объявлем порт сервера
 EXPOSE 8081
