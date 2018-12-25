@@ -4,6 +4,7 @@ package task_manager.server.models;
  * Created by Alex on 19.02.2018.
  */
 import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.sun.org.apache.xpath.internal.operations.Bool;
 
 
 public class Task {
@@ -18,11 +19,20 @@ public class Task {
     @JsonProperty("checked")
     private Boolean checked;
 
-    public Task(int id, int author_id, String caption, String about) {
+    public Task(int id, int author_id, String caption, String about, Boolean checked) {
         this.id = id;
         this.author_id = author_id;
         this.caption = caption;
         this.about = about;
+        this.checked = checked;
+    }
+
+    public Task(int author_id, String caption, String about, Boolean checked) {
+        this.id = 0;
+        this.author_id = author_id;
+        this.caption = caption;
+        this.about = about;
+        this.checked = checked;
     }
 
     public int getId() {
