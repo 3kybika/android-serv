@@ -31,7 +31,7 @@ public class UserService {
 
     public int addUser(@NotNull User user) {
         return jdbcTemplate.queryForObject(
-                "INSERT INTO users(login, email, password) VALUES(?, ?, ?, ?)"
+                "INSERT INTO users(login, email, password) VALUES(?, ?, ?)"
                         + "RETURNING id",
         (response, rowNum) -> new Integer(
                 response.getInt("id")
@@ -60,6 +60,7 @@ public class UserService {
                 "SELECT * FROM users WHERE (users.email) = ?",
                 new Object[]{email},
                 (response, rowNum) -> new User(
+                        response.getInt("id"),
                         response.getString("login"),
                         response.getString("email"),
                         response.getString("password")

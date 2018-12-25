@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpSession;
 
+import task_manager.server.views.requests.IdForm;
 import task_manager.server.views.requests.LoginForm;
 import task_manager.server.views.requests.UserForm;
 import task_manager.server.services.UserService;
 import task_manager.server.models.User;
 import task_manager.server.utilities.ErrorCoder;
-import task_manager.server.views.requests.changeUserDataForm;
+import task_manager.server.views.requests.ChangeUserDataForm;
 import task_manager.server.views.responses.ErrorResponse;
 import task_manager.server.views.responses.SuccessResponse;
 
@@ -68,10 +69,10 @@ public class UserController {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ErrorCoder.NOT_VALID_INFO));
         }
-
+        user.setId(id);
         httpSession.setAttribute("id", id);
 
-        return ResponseEntity.ok(new SuccessResponse("User created"));
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/signin")
@@ -100,12 +101,12 @@ public class UserController {
         }
 
         if (!currentUser.getPassword().equals(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(ErrorCoder.UNCORRECT_PASSWORD));
         }
 
         httpSession.setAttribute("id", currentUser.getId());
-        return ResponseEntity.ok(new SuccessResponse("User loggined"));
+        return ResponseEntity.ok(currentUser);
     }
 
     @PostMapping("/logout")
@@ -121,8 +122,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> currentUser(HttpSession httpSession) {
-
+    public ResponseEntity<?> currentUser(@RequestBody(required = false) String str,HttpSession httpSession) {
         final Integer currentUserId = (Integer) httpSession.getAttribute("id");
 
         if (currentUserId == null) {
@@ -134,7 +134,6 @@ public class UserController {
         try {
             currentUser = userService.getUserById(currentUserId);
         } catch (EmptyResultDataAccessException e) {
-
             httpSession.invalidate();
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ErrorResponse(ErrorCoder.USER_NOT_EXIST));
@@ -144,7 +143,7 @@ public class UserController {
     }
 
     @PostMapping("/me")
-    public ResponseEntity<?> changeUserData(@RequestBody changeUserDataForm body, HttpSession httpSession) {
+    public ResponseEntity<?> changeUserData(@RequestBody ChangeUserDataForm body, HttpSession httpSession) {
         final Integer currentUserId = (Integer) httpSession.getAttribute("id");
 
         if (currentUserId == null) {

@@ -2,13 +2,13 @@ package task_manager.server.views.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class changeUserDataForm {
+public class ChangeUserDataForm {
     private String newEmail;
     private String newLogin;
     private String password;
     private String newPassword;
 
-    public changeUserDataForm(
+    public ChangeUserDataForm(
             @JsonProperty("newLogin") String newLogin,
             @JsonProperty("newEmail") String newEmail,
             @JsonProperty("password") String password,

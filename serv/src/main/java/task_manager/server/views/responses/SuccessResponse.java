@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public class SuccessResponse {
     @JsonProperty("success")
     private final Boolean success = true;
-    @JsonProperty("msg")
+    @JsonProperty("message")
     private final String message;
 
     @JsonCreator
-    public SuccessResponse(@JsonProperty("msg") String msg) {
+    public SuccessResponse(@JsonProperty("message") String msg) {
         this.message = msg;
     }
 
