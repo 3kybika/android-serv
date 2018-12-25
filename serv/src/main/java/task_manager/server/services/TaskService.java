@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import task_manager.server.models.Task;
 import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -44,7 +45,7 @@ public class TaskService {
         );
     }
 
-    public Task getUserById(String id) {
+    public Task getTaskById(Integer id) {
         return jdbcTemplate.queryForObject(
                 "SELECT * FROM tasks WHERE (tasks.id) = ?",
                 new Object[]{id},
@@ -58,19 +59,13 @@ public class TaskService {
         );
     }
 
-    public Task getUserAuthorId(String email) {
-        return jdbcTemplate.queryForObject(
+    public List<Task> getTasksByAuthorId(Integer author_id) {
+        return jdbcTemplate.query(
                 "SELECT * FROM tasks WHERE (tasks.author_id) = ?",
-                new Object[]{email},
-                (response, rowNum) -> new Task(
-                        response.getInt("id"),
-                        response.getInt("author_id"),
-                        response.getString("caption"),
-                        response.getString("about"),
-                        response.getBoolean("checked")
-                )
-        );
+                new Object[]{author_id},
+                TASK_MAPPER);
     }
+
 
     public Task updateTask(Task task, Integer id) {
         StringBuilder querry = new StringBuilder();
