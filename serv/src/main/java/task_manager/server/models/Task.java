@@ -15,6 +15,8 @@ public class Task {
     private String caption;
     @JsonProperty("about")
     private String about;
+    @JsonProperty("checked")
+    private Boolean checked;
 
     public Task(int id, int author_id, String caption, String about) {
         this.id = id;
@@ -53,5 +55,13 @@ public class Task {
 
     public void setAbout(String about) {
         this.about = about;
+    }
+
+    public Boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
     }
 }
