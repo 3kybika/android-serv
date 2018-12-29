@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS  users (
 
 CREATE TABLE IF NOT EXISTS tasks (
   id SERIAL NOT NULL PRIMARY KEY,
-  author_id INT NOT NULL REFERENCES ON users(id),
+  author_id INT NOT NULL,
   caption VARCHAR(255) NOT NULL,
   about VARCHAR(1024),
   checked BOOLEAN
