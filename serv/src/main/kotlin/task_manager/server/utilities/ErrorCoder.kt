@@ -1,9 +1,9 @@
-package task_manager.server.utilities;
+package task_manager.server.utilities
 
 /**
  * Created by Alex on 25.02.2018.
  */
-public enum ErrorCoder {
+enum class ErrorCoder private constructor(val code: Int, val msg: String) {
     NOT_VALID_EMAIL(0, "Email is not valid!"),
     NOT_VALID_LOGIN(1, "Login is not valid!"),
     NOT_VALID_PWD(2, "Password is not valid!"),
@@ -13,20 +13,5 @@ public enum ErrorCoder {
     UNCORRECT_PASSWORD(6, "Uncorrect login or password!"),
     USER_NOT_EXIST(6, "Uncorrect login or password!"),
     USER_NOT_LOGINED(7, "You are not logined!"),
-    ALREADY_LOGGED(8, "You are already logined!");
-    private Integer errorCode;
-    private String message;
-
-    ErrorCoder(Integer code, String msg) {
-        this.errorCode = code;
-        this.message = msg;
-    }
-
-    public String getMsg() {
-        return message;
-    }
-
-    public Integer getCode() {
-        return errorCode;
-    }
+    ALREADY_LOGGED(8, "You are already logined!")
 }
