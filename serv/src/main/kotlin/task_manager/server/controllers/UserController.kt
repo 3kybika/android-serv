@@ -112,7 +112,7 @@ constructor(private val userService: UserService) {
     }
 
     @GetMapping("/me")
-    fun currentUser(@RequestBody(required = false) str: String, httpSession: HttpSession): ResponseEntity<*> {
+    fun currentUser(@RequestBody(required = false) str: String?, httpSession: HttpSession): ResponseEntity<*> {
         val currentUserId = httpSession.getAttribute("id") as Int
                 ?: return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(ErrorResponse(ErrorCoder.USER_NOT_LOGINED))
