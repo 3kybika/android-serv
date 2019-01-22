@@ -3,11 +3,13 @@ package task_manager.server.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import task_manager.server.models.Task;
 import org.springframework.stereotype.Service;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
+import task_manager.server.views.requests.TaskJsonModel;
+
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class TaskService {
@@ -19,80 +21,109 @@ public class TaskService {
     }
 
     public void deleteTable() {
-        jdbcTemplate.execute("DROP TABLE IF EXISTS tasks CASCADE");
+        jdbcTemplate.execute("DROP TABLE IF EXISTS users CASCADE");
     }
 
-    private static final RowMapper<Task> TASK_MAPPER = (responce, num) ->
-            new Task(
-                    responce.getInt("id"),
+    private static final RowMapper<TaskJsonModel> TASK_MAPPER = (responce, num) ->
+            new TaskJsonModel(
+                    responce.getInt("global_id"),
+
                     responce.getInt("author_id"),
-                    responce.getString("caption"),
+                    responce.getInt("changed_by"),
+
+                    responce.getInt("priority"),
+                    responce.getString("name"),
                     responce.getString("about"),
-                    responce.getBoolean("checked")
+
+                    responce.getTimestamp("deadline"),
+                    responce.getTimestamp("notificationTime"),
+                    responce.getTimestamp("lastChangeTime"),
+
+                    responce.getBoolean("completed"),
+                    responce.getBoolean("deleted")
             );
 
-    public int addTask(@NotNull Task task) {
-        return jdbcTemplate.queryForObject(
-                "INSERT INTO tasks(author_id, caption, about, checked) VALUES(?, ?, ?, ?)"
-                        + "RETURNING id",
-                (response, rowNum) -> new Integer(
-                        response.getInt("id")
-                ),
-                task.getAuthorId(),
-                task.getCaption(),
-                task.getAbout(),
-                task.getChecked()
-        );
+    public void updateTasks(List<TaskJsonModel> tasks) {
+        for (TaskJsonModel task : tasks) {
+            jdbcTemplate.update(
+                    "UPDATE Tasks SET " +
+                            " author_id = ?," +
+                            " changed_by = ?, " +
+                            " priority = ?, " +
+                            " name = ?, " +
+                            " about = ?, " +
+                            " deadline = ?, " +
+                            " notificationTime = ?, " +
+                            " lastChangeTime = ?, " +
+                            " completed = ?, " +
+                            " deleted = ? " +
+                    "WHERE global_id = ? AND lastChangeTime < ?;",
+                    task.getAuthorId(),
+                    task.getChangedBy(),
+                    task.getPriority(),
+                    task.getName(),
+                    task.getAbout(),
+                    task.getDeadline(),
+                    task.getNotificationTime(),
+                    task.getLastChangeTime(),
+                    task.isCompleted(),
+                    task.isDeleted(),
+
+                    task.getGlobalId(),
+                    task.getLastChangeTime()
+            );
+        }
     }
 
-    public Task getTaskById(Integer id) {
-        return jdbcTemplate.queryForObject(
-                "SELECT * FROM tasks WHERE (tasks.id) = ?",
-                new Object[]{id},
-                (response, rowNum) -> new Task(
-                        response.getInt("id"),
-                        response.getInt("author_id"),
-                        response.getString("caption"),
-                        response.getString("about"),
-                        response.getBoolean("checked")
-                )
-        );
+    public List<TaskJsonModel> createTasks(List<TaskJsonModel> tasks) {
+        for (TaskJsonModel task : tasks) {
+            int taskId = jdbcTemplate.queryForObject(
+                    "INSERT INTO Tasks (author_id, changed_by, priority, name, about, deadline, notificationTime, lastChangeTime, completed, deleted)" +
+                            " VALUES(?,?,?,?,?,?::TIMESTAMP WITH TIME ZONE,?::TIMESTAMP WITH TIME ZONE,?::TIMESTAMP WITH TIME ZONE,?,?) " +
+                            " RETURNING global_id;",
+                    Integer.class,
+                    task.getAuthorId(),
+                    task.getChangedBy(),
+                    task.getPriority(),
+                    task.getName(),
+                    task.getAbout(),
+                    task.getDeadline(),
+                    task.getNotificationTime(),
+                    task.getLastChangeTime(),
+                    task.isCompleted(),
+                    task.isDeleted()
+            );
+            task.setGlobalId(taskId);
+        }
+
+        return tasks;
     }
 
-    public List<Task> getTasksByAuthorId(Integer author_id) {
-        return jdbcTemplate.query(
-                "SELECT * FROM tasks WHERE (tasks.author_id) = ?",
-                new Object[]{author_id},
-                TASK_MAPPER);
-    }
 
 
-    public Task updateTask(Task task, Integer id) {
-        StringBuilder querry = new StringBuilder();
-
-        querry.append("UPDATE tasks SET ");
-        boolean changed = false;
-
-        if (task.getCaption() != null) {
-            querry.append("caption = '" + task.getCaption() + "',");
-            changed = true;
+    public List<TaskJsonModel>  getUpdatedTask(Timestamp syncTime, int authorId, List<Integer> excludedTasks) {
+        List<TaskJsonModel> tasks;
+        if (syncTime == null) {
+            tasks = jdbcTemplate.query(
+                    "SELECT * FROM Tasks " +
+                            "WHERE " +
+                            "author_id = ? ;",
+                    TASK_MAPPER,
+                    authorId
+            );
+        } else {
+            tasks = jdbcTemplate.query(
+                    "SELECT * FROM Tasks " +
+                            "WHERE " +
+                            "lastChangeTime > ?::TIMESTAMP WITH TIME ZONE AND " +
+                            "author_id = ?;",
+                    TASK_MAPPER,
+                    syncTime,
+                    authorId
+            );
         }
 
-        if (task.getAbout() != null) {
-            querry.append("about = '" + task.getAbout() + "',");
-            changed = true;
-        }
-
-        if (task.getChecked() != null) {
-            querry.append("checked = " + (task.getChecked() ? "True" : "False") + ",");
-            changed = true;
-        }
-
-        querry.deleteCharAt(querry.length() - 1);
-        querry.append(" WHERE tasks.id = '" + id + "';");
-        if (changed) {
-            jdbcTemplate.update(querry.toString());
-        }
-        return task;
+        return tasks.stream()
+                .filter(task -> !excludedTasks.contains(task.getGlobalId()) ).collect(Collectors.toList());
     }
 }

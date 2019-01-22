@@ -25,7 +25,6 @@ import task_manager.server.views.responses.SuccessResponse;
  */
 
 @RestController
-//ToDo: реальный URL фронтенд-сервера
 @CrossOrigin
 @RequestMapping(path = "/api/users")
 public class UserController {
